@@ -1,0 +1,31 @@
+# 本操作流程用于指引用户将redhat自带yum源更换为CentOS的源，从而可以正常使用yum
+# 以网易的yum源、RedHat7为例
+
+确认当前为root用户
+确认网络连接正常
+rpm -qa | grep yum  # 确认yum相关文件可以正常被列出
+
+rpm -qa | grep yum | xargs rpm -e --nodeps  # 卸载yum相关文件
+rpm -qa | grep yum  # 确认该命令不会列出任何文件，说明yum已被卸载完成
+
+访问网易yum源 mirrors.163.com/centos/7/os/x86_64_/Packages/
+
+将该网站上的yum，yum-metadata，yum-plugin-fastestmirror以及repo文件下载到本地：
+wget http://mirrors.163.com/centos/7/os/x86_64/Packages/yum-3.4.3-158.el7.centos.noarch.rpm
+wget http://mirrors.163.com/centos/7/os/x86_64/Packages/yum-metadata-parser-1.1.4-10.el7.x86_64.rpm
+wget http://mirrors.163.com/centos/7/os/x86_64/Packages/yum-plugin-fastestmirror-1.1.31-45.el7.noarch.rpm
+wget http://mirrors.163.com/.help/CentOS7-Base-163.repo
+
+
+rpm -ivh ./yum-*.rpm --nodeps # 安装上述三个已经下载的rpm包
+
+cp -r /etc/yum.repos.d /etc/yum.repos.d.bak
+rm -rf /etc/yum.repos.d/*.repo  # 删除yum自带的reop文件
+
+cp CentOS7-Base-163.repo /etc/yum.repos.d/  # 将下载的网易reop文件拷贝到本地yum.repos.d文件夹
+
+yum clean all && rm -rf /var/cache/yum  # 清除yum缓存
+yum makecache # 创建本地yum缓存
+如果出现[Errno 14] HTTP Error 404 - Not Found相关报错，请修改CentOS7-Base-163.repo，将文件中$releasever替换为7（对应的大版本）
+
+Done.
