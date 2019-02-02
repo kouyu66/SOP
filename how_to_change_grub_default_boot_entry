@@ -1,0 +1,16 @@
+# 更改grub启动器的默认启动项 以RedHat 7.2 操作系统为例
+
+# boot to linux os
+
+awk -F\' '$1=="menuentry " {print i++ " : " $2}' /etc/default/grub2.cfg # for UEFI System   # 查看grub启动菜单界面的启动项列表
+
+grub2-editenv list  # 显示当前启动项
+
+uname -r    # 显示当前系统内核版本，用于确认是否与当前启动项一致
+
+grub2-set-default 2 # 数字序号表示第一步显示的对应启动项, 设置指定启动项为默认值
+
+grub2-editenv list  # 确认当前启动项已需改为指定值
+
+reboot
+uname -r    # 重启，核对重启后的操作系统内核版本
